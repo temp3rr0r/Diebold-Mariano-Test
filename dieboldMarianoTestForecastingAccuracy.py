@@ -10,11 +10,19 @@ from dm_test import dm_test
 import random
 import numpy as np
 
-print("-- Diebold-Mariano test for predictive accuracy ---")
-print("Rationale: If DM close to zero -> The two predictions are similar (p signifies how confident)")
+# See: https://pkg.robjhyndman.com/forecast/reference/dm.test.html#author
+print("-- Diebold-Mariano (DM): statistical significance test for predictive accuracy comparisons (with p-value as the significance level) ---")
+print("Rationale: Given two forecasts of horizon h, and the expected values:")
+print("\tIf DM close to zero -> The two predictions are similar (null hypothesis is TRUE, p-value should be high)")
 print("\tif DM > 0 -> second more accurate,")
 print("\tif DM < 0 -> first more accurate.")
-# See: https://pkg.robjhyndman.com/forecast/reference/dm.test.html#author
+print("\tif DM < 0 -> first more accurate.")
+# See: https://en.wikipedia.org/wiki/Misuse_of_p-values
+print("\tA low p-value means...")
+print("\teither null hypothesis TRUE + a highly improbable event happened")
+print("\tor null hypothesis is FALSE")
+
+print("\nExamples:")
 
 def print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst):
     dms = []
@@ -33,14 +41,18 @@ def print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst):
     ps.append(rt.p_value)
 
     decision = ""
-    if np.abs(np.mean(dms)) < 5:
-        decision = "Similar"
+    if np.abs(np.mean(dms)) < 4:
+        decision = "Similar (null hypothesis TRUE)"
+        if np.mean(ps) >= 0.5:
+            decision += ", p-value HIGH (we are confident)"
+        else:  # See: https://en.wikipedia.org/wiki/P-value, https://en.wikipedia.org/wiki/Misuse_of_p-values
+            decision += ", p-value LOW (we are NOT confident: either null hypothesis FALSE or null hypothesis TRUE + highly improbable event happened)"
     else:
         if np.mean(dms) <= 0:
             decision = "First better"
         else:
             decision = "Second better"
-    print(f"== Decision: {decision} (mean DM: {np.round(np.mean(dms), 2)} mean p: {np.mean(ps)})")
+    print(f"== Decision: {decision} (mean DM: {np.round(np.mean(dms), 2)}, mean p: {np.mean(ps)})")
 
 # Parameters
 ts_count = 100
@@ -55,22 +67,37 @@ pred2_lst = range(1, ts_count)
 # pred1_lst = random.sample(pred1_lst, 100)
 # pred2_lst = random.sample(pred2_lst, 100)
 
-print("Similar")
+print("\n--- Example data: Similar predictions (very):")
 pred1_lst = []
-mu, sigma = 0, 0.01  # mean and standard deviation
+mu, sigma = 0.1, 0.01  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred1_lst.append(actual_lst[i] + s[i])
 pred2_lst = []
 dms = []
 ps = []
-mu, sigma = 0, 0.01  # mean and standard deviation
+mu, sigma = 0.1, 0.01  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred2_lst.append(actual_lst[i] + s[i])
 print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
 
-print("\n1st (slightly) better")
+print("\n--- Example data: Similar predictions (not so similar):")
+pred1_lst = []
+mu, sigma = 0, 3  # mean and standard deviation
+s = np.random.normal(mu, sigma, len(actual_lst))
+for i in range(len(actual_lst)):
+    pred1_lst.append(actual_lst[i] + s[i])
+pred2_lst = []
+dms = []
+ps = []
+mu, sigma = 0.5, 3  # mean and standard deviation
+s = np.random.normal(mu, sigma, len(actual_lst))
+for i in range(len(actual_lst)):
+    pred2_lst.append(actual_lst[i] + s[i])
+print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
+
+print("\n--- Example data: 1st prediction is (slightly) better:")
 pred2_lst = []
 mu, sigma = 0, 0.01  # 0, 0.1  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
@@ -78,7 +105,7 @@ for i in range(len(actual_lst)):
     pred2_lst.append(pred1_lst[i] + s[i])
 print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
 
-print("\n1st (much) better")
+print("\n--- Example data: 1st prediction is (much) better:")
 pred2_lst = []
 mu, sigma = 10, 3  # 0, 0.1  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
@@ -86,7 +113,7 @@ for i in range(len(actual_lst)):
     pred2_lst.append(pred1_lst[i] + s[i])
 print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
 
-print("\n2nd (much) better")
+print("\n--- Example data: 2nd prediction is (slightly) better:")
 pred2_lst = []
 mu, sigma = 10, 3  # 0, 0.1  # mean and standard deviation
 s2 = np.random.normal(mu, sigma, len(actual_lst))
