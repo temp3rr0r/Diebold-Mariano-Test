@@ -22,9 +22,13 @@ print("\tA low p-value means...")
 print("\teither null hypothesis TRUE + a highly improbable event happened")
 print("\tor null hypothesis is FALSE")
 
-print("\nExamples:")
 
 def print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst):
+    elements_to_show = 10
+    print(f"Actual time-series: \t{np.round(np.array(actual_lst[0:elements_to_show], dtype=np.float32), 1)}, ...")
+    print(f"1st prediction: \t\t{np.round(np.array(pred1_lst[0:elements_to_show]), 2)}, ...")
+    print(f"2nd prediction: \t\t{np.round(np.array(pred2_lst[0:elements_to_show]), 2)}, ...")
+
     dms = []
     ps = []
     rt = dm_test(actual_lst, pred1_lst, pred2_lst, h=horizon, crit="MAD")
@@ -67,7 +71,9 @@ pred2_lst = range(1, ts_count)
 # pred1_lst = random.sample(pred1_lst, 100)
 # pred2_lst = random.sample(pred2_lst, 100)
 
-print("\n--- Example data: Similar predictions (very):")
+print(f"\nExamples (forecast horizon: {horizon}):")
+
+print("\n--- Example data: Similar predictions (very similar):")
 pred1_lst = []
 mu, sigma = 0.1, 0.01  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
@@ -84,14 +90,14 @@ print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
 
 print("\n--- Example data: Similar predictions (not so similar):")
 pred1_lst = []
-mu, sigma = 0, 3  # mean and standard deviation
+mu, sigma = 0.5, 3  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred1_lst.append(actual_lst[i] + s[i])
 pred2_lst = []
 dms = []
 ps = []
-mu, sigma = 0.5, 3  # mean and standard deviation
+mu, sigma = -0.5, 3  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred2_lst.append(actual_lst[i] + s[i])
@@ -99,7 +105,7 @@ print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
 
 print("\n--- Example data: 1st prediction is (slightly) better:")
 pred2_lst = []
-mu, sigma = 0, 0.01  # 0, 0.1  # mean and standard deviation
+mu, sigma = 1, 1.0  # 0, 0.1  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred2_lst.append(pred1_lst[i] + s[i])
