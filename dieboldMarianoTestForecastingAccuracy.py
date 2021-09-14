@@ -16,7 +16,6 @@ print("Rationale: Given two forecasts of horizon h, and the expected values:")
 print("\tIf DM close to zero -> The two predictions are similar (null hypothesis is TRUE, p-value should be high)")
 print("\tif DM > 0 -> second more accurate,")
 print("\tif DM < 0 -> first more accurate.")
-print("\tif DM < 0 -> first more accurate.")
 # See: https://en.wikipedia.org/wiki/Misuse_of_p-values
 print("\tA low p-value means...")
 print("\teither null hypothesis TRUE + a highly improbable event happened")
@@ -75,14 +74,14 @@ print(f"\nExamples (forecast horizon: {horizon}):")
 
 print("\n--- Example data: Similar predictions (very similar):")
 pred1_lst = []
-mu, sigma = 0.1, 0.01  # mean and standard deviation
+mu, sigma = 0.0, 0.01  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred1_lst.append(actual_lst[i] + s[i])
 pred2_lst = []
 dms = []
 ps = []
-mu, sigma = 0.1, 0.01  # mean and standard deviation
+mu, sigma = 0.0, 0.01  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred2_lst.append(actual_lst[i] + s[i])
@@ -90,14 +89,14 @@ print_diebold_mariano_predictive_accuracy(actual_lst, pred1_lst, pred2_lst)
 
 print("\n--- Example data: Similar predictions (not so similar):")
 pred1_lst = []
-mu, sigma = 0.5, 3  # mean and standard deviation
+mu, sigma = 0.5, 1  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred1_lst.append(actual_lst[i] + s[i])
 pred2_lst = []
 dms = []
 ps = []
-mu, sigma = -0.5, 3  # mean and standard deviation
+mu, sigma = -0.5, 1  # mean and standard deviation
 s = np.random.normal(mu, sigma, len(actual_lst))
 for i in range(len(actual_lst)):
     pred2_lst.append(actual_lst[i] + s[i])
